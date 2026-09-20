@@ -20,9 +20,13 @@ int main() {
 
 	Physics physics;
 
-	std::cout << "You entered " << x << y << z << "\n";
+	std::cout << "You entered " << x << ", " << y << ", " << z << "\n";
+
+	std::cout << "The fluid volume is " << fluid.volume << "\n";
 
 	std::cout << "Time = " << physics.GetTime() << "\n";
+
+	std::cout << "DeltaTime = " << physics.GetDeltaTime() << "\n";
 
 	return 0;
 }

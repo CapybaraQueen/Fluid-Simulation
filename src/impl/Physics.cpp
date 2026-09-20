@@ -2,6 +2,7 @@
 
 Physics::Physics() {
 	time = 0;
+	deltaTime = 0.01;
 }
 
 void Physics::TimeStep() {
@@ -11,4 +12,8 @@ void Physics::TimeStep() {
 
 float Physics::GetTime() {
 	return time;
+}
+
+float Physics::GetDeltaTime() {
+	return deltaTime;
 }
