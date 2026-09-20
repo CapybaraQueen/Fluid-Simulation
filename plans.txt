@@ -1,0 +1,6 @@
+- we have the container and we have the fluid
+- should i make a fluid class or fluid struct? I could potentially make a physics class and then use the fluid struct. That seems reasonable
+- physics class will keep time and have methods that step time forward and modify the fluid variables
+- i think it would be cool (and potentially necessary) to write the simulation code on the gpu. The only issue is that there is spacial dependency
+- navier stokes equations treat the fluid as a field instead of each particle. I think that's fine because I can simply calculate the field values in a grid and use those
+- i should consider density, pressure, velocity, temperature, volume, energy in all forms (I should definitely look back at my thermodynamic notes from Camille)
