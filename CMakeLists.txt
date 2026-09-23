@@ -9,6 +9,8 @@ target_sources(FluidSimulation
 	PRIVATE
 		./src/impl/main.cpp
 		./src/impl/Physics.cpp
+		./src/impl/Fluid.cpp
+		./src/impl/Problem.cpp
 	PUBLIC
 		FILE_SET myHeaders
 		TYPE HEADERS
@@ -16,5 +18,8 @@ target_sources(FluidSimulation
 			./src/headers
 		FILES
 			./src/headers/Fluid.h
+			./src/headers/Problem.h
 			./src/headers/Physics.h
+			./src/headers/TypeU.h
+			./src/headers/InitialConditions.h
 )
