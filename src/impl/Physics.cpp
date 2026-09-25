@@ -1,9 +1,12 @@
 #include<algorithm>
 #include<cmath>
+#include<numeric>
 
 #include "Physics.h"
 #include "Fluid.h"
 #include "Simulation.h"
+#include "EasyMath.h"
+
 
 // sets the initial time and time step
 Physics::Physics(float dt, float interfaceTol, float epsilon) {
@@ -40,18 +43,74 @@ void Physics::ApplyBoundary(Simulation &simulation) {
 		simulation.m_phi[simulation.Index(simulation.GetSizeTot() - 1,simulation.GetSizeTot() - 1,simulation.GetSizeTot() - 2)];
 }
 
+void Physics::CalculateEOS(Simulation &simulation) {
+
+	if (simulation.m_fluidList.size() == 1) {
+		for (int k = 1; k < simulation.m_nz; ++k) {
+			for (int j = 1; j < simulation.m_ny; ++j) {
+				
+				size_t id = simulation.Index(1,j,k);
+
+				for (int i = 1; i < simulation.m_nx; ++i, ++id) {
+					simulation.m_U.alpha[id] = 1 / (1 - simulation.m_fluidList[0].GetGamma());
+					simulation.m_U.beta[id] = simulation.m_fluidList[0].GetPiInf() * simulation.m_fluidList[0].GetGamma()
+						/ (1 - simulation.m_fluidList[0].GetGamma());
+				}
+			}
+		}
+	}
+	else if (simulation.m_fluidList.size() == 2) {
+		for (int k = 1; k < simulation.m_nz; ++k) {
+			for (int j = 1; j < simulation.m_ny; ++j) {
+				
+				size_t id = simulation.Index(1,j,k);
+
+				for (int i = 1; i < simulation.m_nx; ++i, ++id) {
+					simulation.m_U.alpha[id] =
+						simulation.m_phi[id] / (1 - simulation.m_fluidList[0].GetGamma())
+						+ (1 - simulation.m_phi[id]) / (1 - simulation.m_fluidList[0].GetGamma());
+					simulation.m_U.beta[id] =
+						(simulation.m_phi[id] * simulation.m_fluidList[0].GetPiInf() * simulation.m_fluidList[0].GetGamma())
+						/ (1 - simulation.m_fluidList[0].GetGamma())
+						+ simulation.m_fluidList[1].GetPiInf() * simulation.m_fluidList[1].GetGamma() * (1 - simulation.m_phi[id])
+						/ (1 - simulation.m_fluidList[2].GetGamma());
+				}
+			}
+		}
+	}
+	
+}
+
 // proceeds to the next time, performing all physics necessary to do so
 void Physics::Compute(Simulation& simulation) {
+	ApplyBoundary(simulation);
+	CalculateEOS(simulation);
 	InitializeAlgorithm(simulation);
 
-	m_time += m_dt;
+	std::vector<double> p = EasyMath::VecDivide(EasyMath::VecSubtract(EasyMath::VecSubtract(simulation.m_U.E,simulation.m_U.beta),
+				EasyMath::VecDivide(EasyMath::VecAdd(EasyMath::VecAdd(EasyMath::IndexVecMult(simulation.m_U.xMomentum,simulation.m_U.xMomentum),
+						EasyMath::IndexVecMult(simulation.m_U.yMomentum,simulation.m_U.yMomentum)),
+						EasyMath::IndexVecMult(simulation.m_U.zMomentum,simulation.m_U.zMomentum)),
+					EasyMath::ScalarMult(2.0, simulation.m_U.rho))),
+				simulation.m_U.alpha);
+
+	std::vector<double> F[7];
+	std::vector<double> G[7];
+	std::vector<double> H[7];
+
+	F[0] = simulation.m_U.xMomentum;
+	F[1] = EasyMath::VecAdd(EasyMath::VecDivide(EasyMath::IndexVecMult(simulation.m_U.xMomentum,simulation.m_U.xMomentum), simulation.m_U.rho),p);
+	F[2] = EasyMath::VecDivide(EasyMath::IndexVecMult(simulation.m_U.xMomentum,simulation.m_U.yMomentum),simulation.m_U.rho);
+	F[3] = EasyMath::VecDivide(EasyMath::IndexVecMult(simulation.m_U.xMomentum,simulation.m_U.zMomentum),simulation.m_U.rho);
+	F[4] = EasyMath::IndexVecMult(EasyMath::VecAdd(simulation.m_U.E,p),EasyMath::VecDivide(simulation.m_U.yMomentum,simulation.m_U.rho));
+	F[5] = simulation.m_U.alpha;
+	F[6] = simulation.m_U.beta;
+
+
 	return;
 }
 
 void Physics::InitializeAlgorithm(Simulation& simulation) {
-
-	ApplyBoundary(simulation);
-
 	double epsilon_h = m_epsilon * simulation.m_gridResolution;
 	float a = 0.5; // this might need to be changed later. Look at alpha values in paper and decide. Or maybe find best value myself.
 	std::vector<double> psi(simulation.m_NTot);

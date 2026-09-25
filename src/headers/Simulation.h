@@ -24,6 +24,9 @@ class Simulation {
 		// conservative variables structure containing the U vector (of vectors)
 		TypeU m_U;
 
+		// pressure vector for ease of use
+		std::vector<double> m_pressure;
+
 		// volume fraction vector
 		std::vector<double> m_phi;
 

@@ -23,6 +23,8 @@ class Physics {
 
 		void ApplyBoundary(Simulation& simulation);
 
+		void CalculateEOS(Simulation& simulation);
+
 		void Compute(Simulation& simulation);
 
 		void SetTime(float t);
