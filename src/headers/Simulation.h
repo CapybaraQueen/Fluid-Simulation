@@ -1,11 +1,14 @@
-#ifndef PROBLEM_H
-#define PROBLEM_H
+#ifndef SIMULATION_H
+#define SIMULATION_H
 
 #include<vector>
+#include<memory>
+
 #include "TypeU.h"
 #include "InitialConditions.h"
+#include "Fluid.h"
 
-class Problem {
+class Simulation {
 	private:
 		// size and indexing information
 		int m_nx,m_ny,m_nz;
@@ -17,28 +20,30 @@ class Problem {
 		size_t m_N;
 		size_t m_NTot;
 
+
 		// conservative variables structure containing the U vector (of vectors)
 		TypeU m_U;
 
-		// volume fraction
+		// volume fraction vector
 		std::vector<double> m_phi;
 
-		double m_gamma1;
-		double m_gamma2;
 
-		double m_piInf1;
-		double m_piInf2;
+		// Vector of pointer to all fluid objects (this is basically just how to access the fluids because they are not named in the conventional sense
+		std::vector<Fluid> m_fluidList;
+
 
 		friend class Physics;
 
 	public:
-		Problem(int nx, int ny, int nz, double gridResolution);
+		Simulation(int nx, int ny, int nz, double gridResolution);
 
-		void Initialize(const InitialConditions& ic, const double& gamma1, const double& piInf1, const double& gamma2 = 0, const double& piInf2 = 0);
+		void Initialize(const InitialConditions& ic);
 
 		size_t Index(int i, int j, int k) const noexcept;
 
 		void SetSize(int nx, int ny, int nz, double gridResolution);
+
+		void AddFluid(const double& gamma, const double& piInf);
 
 		TypeU GetU() const noexcept;
 
@@ -53,6 +58,9 @@ class Problem {
 		int GetNzTot() const noexcept;
 
 		double GetGridResolution() const noexcept;
+
+		const Fluid& GetFluid(size_t index) const noexcept;
+		const std::vector<Fluid>& GetFluidList() const noexcept;
 };
 
 #endif

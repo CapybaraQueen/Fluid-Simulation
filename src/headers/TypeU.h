@@ -19,7 +19,7 @@ struct TypeU {
 	// total energy
 	std::vector<double> E;
 
-	// ...
+	// equation of state variables
 	std::vector<double> alpha;
 	std::vector<double> beta;
 };

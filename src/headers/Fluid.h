@@ -7,13 +7,15 @@ class Fluid {
 		double m_piInf;
 
 		friend class Physics;
+		friend class Simulation;
 
-	public:
 		Fluid(double gamma, double piInf);
 
 		void SetGamma(double gamma);
 
 		void SetPiInf(double piInf);
+
+	public:
 
 		double GetGamma() const noexcept;
 

@@ -1,7 +1,7 @@
 #ifndef PHYSICS_H
 #define PHYSICS_H
 
-#include "Problem.h"
+#include "Simulation.h"
 
 class Physics {
 	private:
@@ -17,13 +17,13 @@ class Physics {
 		// epsilon_h = epsilon * h, where h is grid-size represents how wide the interface sharpening is
 		double m_epsilon;
 
-		void InitializeAlgorithm(Problem& problem);
+		void InitializeAlgorithm(Simulation& simulation);
 	public:
 		Physics(float dt, float interfaceTol, float epsilon);
 
-		void ApplyBoundary(Problem& problem);
+		void ApplyBoundary(Simulation& simulation);
 
-		void Compute(Problem& problem);
+		void Compute(Simulation& simulation);
 
 		void SetTime(float t);
 

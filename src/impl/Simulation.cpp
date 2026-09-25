@@ -1,11 +1,9 @@
-#include<iostream>
-
-#include "Problem.h"
+#include "Simulation.h"
 #include "TypeU.h"
 #include "InitialConditions.h"
 
 // sets the initial volume/grid variables and reserves the conversative variable vectors to the total volume/grid size
-Problem::Problem(int nx, int ny, int nz, double gridResolution) {
+Simulation::Simulation(int nx, int ny, int nz, double gridResolution) {
 	SetSize(nx, ny, nz, gridResolution);
 
 	// reserves enough space for nx*ny*nz entries to avoid needing to extend the vectors multiple times
@@ -19,25 +17,21 @@ Problem::Problem(int nx, int ny, int nz, double gridResolution) {
 }
 
 // sets the initial conditions of the conservative variable vectors, passed in as the full struct object
-void Problem::Initialize(const InitialConditions& ic, const double& gamma1, const double& piInf1, const double& gamma2, const double& piInf2) {
+void Simulation::Initialize(const InitialConditions& ic) {
 	m_U.rho = ic.rho;
 	m_U.xMomentum = ic.xMomentum;
 	m_U.yMomentum = ic.yMomentum;
 	m_U.zMomentum = ic.zMomentum;
 	m_U.E = ic.E;
 	m_phi = ic.phi;
-	m_gamma1 = gamma1;
-	m_gamma2 = gamma2;
-	m_piInf1 = piInf1;
-	m_piInf2 = piInf2;
 }
 
 // used for indexing the 1D vector with a 3D structure. Stride is the index jump needed to reach the next Y or Z location
-size_t Problem::Index(int i, int j, int k) const noexcept {
+size_t Simulation::Index(int i, int j, int k) const noexcept {
 	return static_cast<size_t>(i) + m_strideY*static_cast<size_t>(j) + m_strideZ*static_cast<size_t>(k);
 }
 
-void Problem::SetSize(int nx, int ny, int nz, double gridResolution) {
+void Simulation::SetSize(int nx, int ny, int nz, double gridResolution) {
 	m_nx = nx;
 	m_ny = ny;
 	m_nz = nz;
@@ -55,42 +49,54 @@ void Problem::SetSize(int nx, int ny, int nz, double gridResolution) {
 	m_strideZ = static_cast<size_t>(m_nxTot*m_nyTot);
 }
 
-TypeU Problem::GetU() const noexcept {
+void Simulation::AddFluid(const double &gamma, const double &piInf) {
+	m_fluidList.push_back(Fluid(gamma,piInf));
+}
+
+TypeU Simulation::GetU() const noexcept {
 	return m_U;
 }
 
-size_t Problem::GetSize() const noexcept {
+size_t Simulation::GetSize() const noexcept {
 	return m_N;
 }
 
-size_t Problem::GetSizeTot() const noexcept {
+size_t Simulation::GetSizeTot() const noexcept {
 	return m_NTot;
 }
 
-int Problem::GetNx() const noexcept {
+int Simulation::GetNx() const noexcept {
 	return m_nx;
 }
 
-int Problem::GetNxTot() const noexcept {
+int Simulation::GetNxTot() const noexcept {
 	return m_nxTot;
 }
 
-int Problem::GetNy() const noexcept {
+int Simulation::GetNy() const noexcept {
 	return m_ny;
 }
 
-int Problem::GetNyTot() const noexcept {
+int Simulation::GetNyTot() const noexcept {
 	return m_ny;
 }
 
-int Problem::GetNz() const noexcept {
+int Simulation::GetNz() const noexcept {
 	return m_nz;
 }
 
-int Problem::GetNzTot() const noexcept {
+int Simulation::GetNzTot() const noexcept {
 	return m_nzTot;
 }
 
-double Problem::GetGridResolution() const noexcept {
+double Simulation::GetGridResolution() const noexcept {
 	return m_gridResolution;
+}
+
+const Fluid& Simulation::GetFluid(size_t index) const noexcept {
+	return m_fluidList[index];
+}
+
+const std::vector<Fluid>& Simulation::GetFluidList() const noexcept {
+	return m_fluidList;
 }

@@ -1,19 +1,17 @@
 #include<iostream>
 #include<sstream>
 #include<string>
-#include<memory>
 #include<vector>
 
 #include "Physics.h"
 #include "Fluid.h"
-#include "Problem.h"
+#include "Simulation.h"
 
 int main() {
 	int x,y,z;
 	double h;
 	double dt,iTol,epsilon;
 
-	std::vector<std::unique_ptr<Fluid>> fluidList;
 	double tmpGamma,tmpPiInf;
 
 	std::string dummy;
@@ -25,7 +23,7 @@ int main() {
 
 	streamedString >> x >> y >> z >> h;
 
-	Problem problem(x,y,z,h);
+	Simulation simulation(x,y,z,h);
 
 	std::cout << "Enter the deltaTime, interface tolerance, and epsilon as dt iTol epsilon: ";
 	getline(std::cin, dummy);
@@ -36,7 +34,7 @@ int main() {
 
 	Physics physics(dt,iTol,epsilon);
 
-	std::cout << "How many fluids are in this problem? ";
+	std::cout << "How many fluids are in this simulation? ";
 	getline(std::cin, dummy);
 
 	streamedString = std::istringstream(dummy);
@@ -48,21 +46,21 @@ int main() {
 		streamedString = std::istringstream(dummy);
 		streamedString >> tmpGamma >> tmpPiInf;
 
-		fluidList.push_back(std::make_unique<Fluid>(tmpGamma, tmpPiInf));
+		simulation.AddFluid(tmpGamma, tmpPiInf);
 	}
 
-	std::cout << "You entered " << problem.GetNx() << ", " << problem.GetNy() << ", " << problem.GetNz() << ", " << problem.GetGridResolution() << "\n";
+	std::cout << "You entered " << simulation.GetNx() << ", " << simulation.GetNy() << ", " << simulation.GetNz() << ", " << simulation.GetGridResolution() << "\n";
 
-	std::cout << "The fluid volume is " << problem.GetSize() * h << "\n";
+	std::cout << "The fluid volume is " << simulation.GetSize() * h << "\n";
 
 	std::cout << "Time = " << physics.GetTime() << "\n";
 
 	std::cout << "DeltaTime = " << physics.GetDeltaTime() << "\n";
 
-	std::cout << "You created " << fluidList.size() << " fluids.\n";
+	std::cout << "You created " << simulation.GetFluidList().size() << " fluids.\n";
 
-	for (int i = 0; i < fluidList.size(); i++) {
-		std::cout << "Fluid " << i << " has gamma=" << fluidList[i]->GetGamma() << " and piInf=" << fluidList[i]->GetPiInf() << "\n";
+	for (int i = 0; i < simulation.GetFluidList().size(); i++) {
+		std::cout << "Fluid " << i << " has gamma=" << simulation.GetFluid(i).GetGamma() << " and piInf=" << simulation.GetFluid(i).GetPiInf() << "\n";
 	}
 
 	return 0;
